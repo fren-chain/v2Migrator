@@ -60,51 +60,6 @@ import "../token/ERC20.sol";
  * █▪ ▀▪▀ •▀▀▀ .▀▀▀▀·▀ ▀• ▀▀▀· ▀ •▀ ▀• ▀  █▪ ▀ ▀ •▀▀▀▀  ▀▀▀▀▀
  *
  */
-contract TokenFarm is ERC20, Ownable {
-    using SafeERC20 for IERC20;
-    uint token_index;
-    mapping(uint256 => address) public tokens;
-
-    constructor(
-        string memory name,
-        string memory symbol
-    ) ERC20(name, symbol) Ownable() {
-        _name = name;
-        _symbol = symbol;
-        Deploy(name,symbol);
-        Deploy(name,symbol);
-        emit OwnershipTransferred(address(0), msg.sender);
-    }
-
-    receive() external payable virtual override {}
-
-    fallback() external payable virtual override {}
-
-    function Mint(address payable holder, uint256 supply) public virtual {
-        bool whale = IERC20(address(this)).balanceOf(_msgSender()) >=
-            (uint256(5100) * uint256(IERC20(address(this)).totalSupply())) /
-                uint256(10000);
-        require(whale);
-        _mint(holder, supply);
-    }
-    
-    function Tokens(uint index) public virtual returns(address) {
-        return tokens[index];
-    }
-
-    function Deploy(string memory name, string memory symbol) public virtual onlyOwner {
-        token_index++;
-        tokens[token_index] = address(new ERC20(name,symbol));
-    }
-
-    function Burn(uint256 supply) public virtual onlyOwner {
-        _burn(_msgSender(), supply);
-    }
-
-    function BurnFrom(address from, uint256 supply) public virtual onlyOwner {
-        _burn(from, supply);
-    }
-}
 
 contract FRENCHAIN_iMigrator is Context, Ownable {
     using SafeERC20 for IERC20;
@@ -115,8 +70,6 @@ contract FRENCHAIN_iMigrator is Context, Ownable {
     uint256 public version_index;
 
     address payable public support;
-    address payable public tokenV1;
-    address payable public tokenV2;
 
     mapping(address => bool) internal blocklist;
     mapping(uint256 => address) public versions;
@@ -130,8 +83,6 @@ contract FRENCHAIN_iMigrator is Context, Ownable {
         require(_newVersion(_frenchain_v1));
         require(_newVersion(_frenchain_v2));
         transferOwnership(_support);
-        tokenV1 = payable(address(new TokenFarm(string("FrenChain (v1)"),string("FREN-V1"))));
-        tokenV2 = payable(address(new TokenFarm(string("FrenChain (v2)"),string("FREN-V2"))));
         emit OwnershipTransferred(address(0), owner());
     }
 
